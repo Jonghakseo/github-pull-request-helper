@@ -6,8 +6,13 @@ import packageJson from "./package.json";
 const manifest: chrome.runtime.ManifestV3 = {
   manifest_version: 3,
   name: "Pull Request Commit Notify",
+  permissions: ["storage"],
   version: packageJson.version,
   description: packageJson.description,
+  background: {
+    service_worker: "src/pages/background/index.js",
+    type: "module",
+  },
   action: {
     default_popup: "src/pages/popup/index.html",
     default_icon: "icon-34.png",
