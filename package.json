@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-boilerplate-react-vite",
+  "name": "noti-commit",
   "version": "0.0.1",
-  "description": "chrome extension boilerplate",
+  "description": "pull request notification for github",
   "license": "MIT",
   "repository": {
     "type": "git",
