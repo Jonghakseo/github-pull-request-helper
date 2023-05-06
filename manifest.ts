@@ -36,7 +36,7 @@ const manifest: chrome.runtime.ManifestV3 = {
         "icon-128.png",
         "icon-34.png",
       ],
-      matches: ["*://*/*"],
+      matches: ["https://github.com/*"],
     },
   ],
 };
