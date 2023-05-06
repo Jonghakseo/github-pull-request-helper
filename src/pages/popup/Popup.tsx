@@ -11,7 +11,7 @@ const Popup = () => {
     <main className="App">
       <section className="config-wrapper">
         <label>
-          Click - Copy Style
+          Click Copy Style
           <DropdownSelect<ToastConfig["copyStyle"]>
             defaultValue={toastConfigConfigStorage.get("copyStyle")}
             onChangeOption={(value) => {
