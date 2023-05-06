@@ -14,7 +14,7 @@ class ConfigStorage<Data extends Record<string, unknown>> {
     }
 
     this.update = (data) => {
-      localStorage.setItem(key, JSON.stringify(data));
+      localStorage.setItem(key, JSON.stringify(data, null, 2));
     };
   }
 
