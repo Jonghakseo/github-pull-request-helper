@@ -14,7 +14,7 @@ const Popup = () => {
           Click - Copy Style
           <DropdownSelect<ToastConfig["copyStyle"]>
             defaultValue={toastConfigConfigStorage.get("copyStyle")}
-            onSelect={(value) =>
+            onChangeOption={(value) =>
               toastConfigConfigStorage.set("copyStyle", value)
             }
             options={[
@@ -37,7 +37,7 @@ const Popup = () => {
           Position
           <DropdownSelect<ToastConfig["position"]>
             defaultValue={toastConfigConfigStorage.get("position")}
-            onSelect={(value) =>
+            onChangeOption={(value) =>
               toastConfigConfigStorage.set("position", value)
             }
             options={[
@@ -72,7 +72,9 @@ const Popup = () => {
           Type
           <DropdownSelect<ToastConfig["type"]>
             defaultValue={toastConfigConfigStorage.get("type")}
-            onSelect={(value) => toastConfigConfigStorage.set("type", value)}
+            onChangeOption={(value) =>
+              toastConfigConfigStorage.set("type", value)
+            }
             options={[
               {
                 label: "success",
@@ -101,7 +103,9 @@ const Popup = () => {
           Theme
           <DropdownSelect<ToastConfig["theme"]>
             defaultValue={toastConfigConfigStorage.get("theme")}
-            onSelect={(value) => toastConfigConfigStorage.set("theme", value)}
+            onChangeOption={(value) =>
+              toastConfigConfigStorage.set("theme", value)
+            }
             options={[
               {
                 label: "light",

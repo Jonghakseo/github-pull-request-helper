@@ -7,18 +7,20 @@ export type Option<Value extends string | number> = {
 
 type DropdownSelectProps<Value extends string | number> = {
   options: Option<Value>[];
-  onSelect?: (value: Value) => void;
-} & Omit<ComponentPropsWithRef<"select">, "onSelect">;
+  onChangeOption?: (value: Value) => void;
+} & ComponentPropsWithRef<"select">;
 
 export default function DropdownSelect<Value extends string | number>({
   options,
-  onSelect,
+  onChange,
+  onChangeOption,
   ...restProps
 }: DropdownSelectProps<Value>) {
   return (
     <select
-      onSelect={(event) => {
-        onSelect?.(event.currentTarget.value as Value);
+      onChange={(event) => {
+        onChangeOption?.(event.currentTarget.value as Value);
+        onChange?.(event);
       }}
       {...restProps}
     >
