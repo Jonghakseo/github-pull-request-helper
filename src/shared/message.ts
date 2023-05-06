@@ -35,6 +35,6 @@ export function sendMessageToClient(
   try {
     port.postMessage(message);
   } catch (error) {
-    console.log(error);
+    console.warn(error);
   }
 }
