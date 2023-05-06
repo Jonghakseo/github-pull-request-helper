@@ -1,5 +1,5 @@
 import { toast, ToastContainer } from "react-toastify";
-import useUrlChangeEffect from "@pages/content/components/hooks/useUrlChangeEffect";
+import useUrlChangeEffect from "@pages/content/hooks/useUrlChangeEffect";
 import { useRef } from "react";
 
 type Commit = { name: string; url: string };
