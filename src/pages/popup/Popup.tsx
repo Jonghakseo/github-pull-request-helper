@@ -14,9 +14,9 @@ const Popup = () => {
           Click - Copy Style
           <DropdownSelect<ToastConfig["copyStyle"]>
             defaultValue={toastConfigConfigStorage.get("copyStyle")}
-            onChangeOption={(value) =>
-              toastConfigConfigStorage.set("copyStyle", value)
-            }
+            onChangeOption={(value) => {
+              toastConfigConfigStorage.set("copyStyle", value);
+            }}
             options={[
               {
                 label: "[hash](url)",
@@ -37,9 +37,9 @@ const Popup = () => {
           Position
           <DropdownSelect<ToastConfig["position"]>
             defaultValue={toastConfigConfigStorage.get("position")}
-            onChangeOption={(value) =>
-              toastConfigConfigStorage.set("position", value)
-            }
+            onChangeOption={(value) => {
+              toastConfigConfigStorage.set("position", value);
+            }}
             options={[
               {
                 label: "top-right",
@@ -72,9 +72,9 @@ const Popup = () => {
           Type
           <DropdownSelect<ToastConfig["type"]>
             defaultValue={toastConfigConfigStorage.get("type")}
-            onChangeOption={(value) =>
-              toastConfigConfigStorage.set("type", value)
-            }
+            onChangeOption={(value) => {
+              toastConfigConfigStorage.set("type", value);
+            }}
             options={[
               {
                 label: "success",
@@ -103,9 +103,9 @@ const Popup = () => {
           Theme
           <DropdownSelect<ToastConfig["theme"]>
             defaultValue={toastConfigConfigStorage.get("theme")}
-            onChangeOption={(value) =>
-              toastConfigConfigStorage.set("theme", value)
-            }
+            onChangeOption={(value) => {
+              toastConfigConfigStorage.set("theme", value);
+            }}
             options={[
               {
                 label: "light",
@@ -129,9 +129,9 @@ const Popup = () => {
             type="number"
             min={0}
             step={100}
-            onChange={(event) =>
-              toastConfigConfigStorage.set("delay", Number(event.target.value))
-            }
+            onChange={(event) => {
+              toastConfigConfigStorage.set("delay", Number(event.target.value));
+            }}
           />
         </label>
         <label>
@@ -154,12 +154,12 @@ const Popup = () => {
             min={0}
             step={100}
             placeholder="0 = disabled"
-            onChange={(event) =>
+            onChange={(event) => {
               toastConfigConfigStorage.set(
                 "autoClose",
                 Number(event.target.value) || false
-              )
-            }
+              );
+            }}
           />
         </label>
         <label>
