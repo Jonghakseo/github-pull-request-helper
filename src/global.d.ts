@@ -35,3 +35,15 @@ declare module "*.json" {
   const content: string;
   export default content;
 }
+
+declare global {
+  type Message =
+    | {
+        type: "loadConfig";
+        data: any;
+      }
+    | {
+        type: "saveConfig";
+        data: any;
+      };
+}

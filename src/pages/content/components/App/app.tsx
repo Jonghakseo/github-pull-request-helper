@@ -1,7 +1,6 @@
 import { toast, ToastContainer } from "react-toastify";
 import useUrlChangeEffect from "@pages/content/hooks/useUrlChangeEffect";
 import { useRef } from "react";
-import { ToastConfigStorageBuilder } from "@src/shared/toast-config-storage";
 import isPullRequestPage from "@pages/content/utils/isPullRequestPage";
 import { getCommitElements } from "@pages/content/utils/dom";
 import {
@@ -11,16 +10,17 @@ import {
 } from "@pages/content/utils/commit";
 import { clipboardCopy } from "@pages/content/utils/clipboard";
 import createMarkdownLink from "@pages/content/utils/createMarkdownLink";
+import { ToastConfigStorageBuilder } from "@src/shared/toast-config-storage";
 
 export default function App() {
   const prevCommitUrls = useRef<string[]>([]);
 
-  const notify = (commit: Commit) => {
-    const toastConfigConfigStorage = ToastConfigStorageBuilder.getStore();
+  const notify = async (commit: Commit) => {
+    const toastConfigStorage = await ToastConfigStorageBuilder.getStore();
     toast(commit.name, {
       onClick: () => {
         const link = (() => {
-          switch (toastConfigConfigStorage.get("copyStyle")) {
+          switch (toastConfigStorage.get("copyStyle")) {
             case "commit-name-markdown":
               return createMarkdownLink(commit.name, commit.url);
             case "commit-hash-markdown":
@@ -31,14 +31,14 @@ export default function App() {
         })();
         void clipboardCopy(link);
       },
-      position: toastConfigConfigStorage.get("position"),
-      type: toastConfigConfigStorage.get("type"),
-      autoClose: toastConfigConfigStorage.get("autoClose"),
-      hideProgressBar: toastConfigConfigStorage.get("hideProgressBar"),
-      closeOnClick: toastConfigConfigStorage.get("closeOnClick"),
-      pauseOnHover: toastConfigConfigStorage.get("pauseOnHover"),
-      draggable: toastConfigConfigStorage.get("draggable"),
-      theme: toastConfigConfigStorage.get("theme"),
+      position: toastConfigStorage.get("position"),
+      type: toastConfigStorage.get("type"),
+      autoClose: toastConfigStorage.get("autoClose"),
+      hideProgressBar: toastConfigStorage.get("hideProgressBar"),
+      closeOnClick: toastConfigStorage.get("closeOnClick"),
+      pauseOnHover: toastConfigStorage.get("pauseOnHover"),
+      draggable: toastConfigStorage.get("draggable"),
+      theme: toastConfigStorage.get("theme"),
     });
   };
 
@@ -82,6 +82,7 @@ export default function App() {
     }, 500);
 
     return () => {
+      toast.dismiss();
       clearInterval(interval);
     };
   });

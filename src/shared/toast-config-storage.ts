@@ -1,21 +1,37 @@
-import { defaultToastConfig, ToastConfig } from "@src/shared/toast-config";
+import { ToastConfig } from "@src/shared/toast-config";
+import { sendMessageToBackground } from "@src/shared/message";
 
-class ConfigStorage<Data extends Record<string, unknown>> {
+export interface IConfigStorage<Data extends Record<string, unknown>> {
+  set(key: keyof Data, value: Data[keyof Data]): void;
+  get<Key extends keyof Data>(key: Key): Data[Key];
+}
+class ConfigStorage<Data extends Record<string, unknown>>
+  implements IConfigStorage<Data>
+{
   private readonly data: Data;
   private readonly update: (data: Data) => void = () => undefined;
 
-  constructor(key: string, defaultData: Data) {
-    const saved = localStorage.getItem(key);
+  private constructor(data: Data, update: (data: Data) => void) {
+    this.data = data;
+    this.update = update;
+  }
 
-    if (!saved) {
-      this.data = defaultData;
-    } else {
-      this.data = JSON.parse(saved) ?? defaultData;
-    }
-
-    this.update = (data) => {
-      localStorage.setItem(key, JSON.stringify(data));
-    };
+  static async init<Data extends Record<string, unknown>>(): Promise<
+    ConfigStorage<Data>
+  > {
+    return new Promise((resolve) => {
+      sendMessageToBackground({
+        message: { type: "loadConfig", data: null },
+        handleSuccess: (result) => {
+          const store = new ConfigStorage(result, (data) =>
+            sendMessageToBackground({
+              message: { type: "saveConfig", data },
+            })
+          );
+          resolve(store);
+        },
+      });
+    });
   }
 
   public set(key: keyof Data, value: Data[keyof Data]): void {
@@ -30,14 +46,11 @@ class ConfigStorage<Data extends Record<string, unknown>> {
 
 export class ToastConfigStorageBuilder {
   private static instance: ConfigStorage<ToastConfig>;
-  private static storageKey = "pr-commit-noti-toast-config";
 
-  static getStore(): ConfigStorage<ToastConfig> {
+  static async getStore(): Promise<ConfigStorage<ToastConfig>> {
     if (!ToastConfigStorageBuilder.instance) {
-      ToastConfigStorageBuilder.instance = new ConfigStorage<ToastConfig>(
-        this.storageKey,
-        defaultToastConfig
-      );
+      ToastConfigStorageBuilder.instance =
+        await ConfigStorage.init<ToastConfig>();
     }
     return ToastConfigStorageBuilder.instance;
   }
