@@ -1,53 +1,82 @@
 import { toast, ToastContainer } from "react-toastify";
 import useUrlChangeEffect from "@pages/content/hooks/useUrlChangeEffect";
 import { useRef } from "react";
-
-type Commit = { name: string; url: string };
+import { ToastConfigStorageBuilder } from "@src/shared/toast-config-storage";
+import isPullRequestPage from "@pages/content/utils/isPullRequestPage";
+import { getCommitElements } from "@pages/content/utils/dom";
+import {
+  Commit,
+  getCommitNameAndHref,
+  getCommitsUrls,
+} from "@pages/content/utils/commit";
+import { clipboardCopy } from "@pages/content/utils/clipboard";
+import createMarkdownLink from "@pages/content/utils/createMarkdownLink";
 
 export default function App() {
-  const prevCommitUrls = useRef<Commit["url"][]>([]);
+  const prevCommitUrls = useRef<string[]>([]);
 
-  const notify = (info: Commit) =>
-    toast(info.name, {
-      onClick: () => clipboardCopy(createMarkdownLink(info)),
-      position: "top-right",
-      autoClose: false,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
+  const notify = (commit: Commit) => {
+    const toastConfigConfigStorage = ToastConfigStorageBuilder.getStore();
+    toast(commit.name, {
+      onClick: () => {
+        const link = (() => {
+          switch (toastConfigConfigStorage.get("copyStyle")) {
+            case "commit-name-markdown":
+              return createMarkdownLink(commit.name, commit.url);
+            case "commit-hash-markdown":
+              return createMarkdownLink(commit.hash, commit.url);
+            case "just-url":
+              return commit.url;
+          }
+        })();
+        void clipboardCopy(link);
+      },
+      position: toastConfigConfigStorage.get("position"),
+      type: toastConfigConfigStorage.get("type"),
+      autoClose: toastConfigConfigStorage.get("autoClose"),
+      hideProgressBar: toastConfigConfigStorage.get("hideProgressBar"),
+      closeOnClick: toastConfigConfigStorage.get("closeOnClick"),
+      pauseOnHover: toastConfigConfigStorage.get("pauseOnHover"),
+      draggable: toastConfigConfigStorage.get("draggable"),
+      theme: toastConfigConfigStorage.get("theme"),
     });
+  };
 
   useUrlChangeEffect((currentUrl) => {
-    if (!isPRPage(currentUrl)) {
+    if (!isPullRequestPage(currentUrl)) {
       return;
     }
-    const getCommitList = () => getCommitElements().map(getCommitNameAndHref);
-    const updateCommitUrls = (newCommitUrls: string[]) => {
-      prevCommitUrls.current = newCommitUrls;
-    };
-    const getAdditionalCommits = (commitList: Commit[]) =>
-      commitList.filter(({ url }) => !prevCommitUrls.current.includes(url));
-
-    function init() {
-      const commitList = getCommitList();
-      updateCommitUrls(commitList.map(({ url }) => url));
+    function getCommitList(): Commit[] {
+      return getCommitElements().map(getCommitNameAndHref);
     }
 
+    function updateCommitUrls(newCommitUrls: string[]): void {
+      prevCommitUrls.current = newCommitUrls;
+    }
+    function getAdditionalCommits(commitList: Commit[]): Commit[] {
+      return commitList.filter(
+        (commit) => !prevCommitUrls.current.includes(commit.url)
+      );
+    }
+
+    function init() {
+      const commitList: Commit[] = getCommitList();
+      updateCommitUrls(getCommitsUrls(commitList));
+    }
+
+    // ! initial commit setting
     init();
 
     const interval = setInterval(() => {
-      const commitList = getCommitList();
-      const additionalCommits = getAdditionalCommits(commitList);
-      updateCommitUrls(commitList.map(({ url }) => url));
+      const commitList: Commit[] = getCommitList();
+      const additionalCommits: Commit[] = getAdditionalCommits(commitList);
+      updateCommitUrls(getCommitsUrls(commitList));
 
       if (additionalCommits.length === 0) {
         return;
       }
       additionalCommits.forEach(notify);
-    }, 1000);
+    }, 500);
 
     return () => {
       clearInterval(interval);
@@ -56,37 +85,3 @@ export default function App() {
 
   return <ToastContainer />;
 }
-
-const PR_PAGE_REGEX = new RegExp(
-  "https://github.com/([a-zA-Z0-9-_]+)/([a-zA-Z0-9-_]+)/pull/(\\d+)"
-);
-
-const isPRPage = (url: string) => PR_PAGE_REGEX.test(url);
-
-const getCommitElements = (): Element[] => {
-  const timelineElements = document.querySelectorAll(
-    ".TimelineItem.TimelineItem--condensed"
-  );
-  if (timelineElements.length === 0) {
-    return [];
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [prDescription, ...commitList] = Array.from(timelineElements);
-  return commitList;
-};
-
-const getCommitNameAndHref = (
-  commitElement: Element
-): { name: string; url: string } => {
-  const name = commitElement.querySelector("a").title;
-  const url = commitElement.querySelector("a").href;
-  return { name, url };
-};
-
-const createMarkdownLink = ({ name, url }: Commit) => {
-  return `[${name}](${url})`;
-};
-
-const clipboardCopy = (text: string) => {
-  return window.navigator.clipboard.writeText(text);
-};

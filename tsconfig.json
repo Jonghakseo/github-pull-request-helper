@@ -3,6 +3,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "allowJs": false,
+    "strictNullChecks": true,
     "target": "esnext",
     "module": "esnext",
     "jsx": "react-jsx",
