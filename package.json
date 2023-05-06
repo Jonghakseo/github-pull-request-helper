@@ -1,7 +1,7 @@
 {
-  "name": "chrome-extension-boilerplate-react-vite",
+  "name": "pr-commit-noti",
   "version": "0.0.1",
-  "description": "chrome extension boilerplate",
+  "description": "pull request notification for github",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,12 +13,13 @@
     "build:hmr": "rollup --config utils/reload/rollup.config.ts",
     "wss": "node utils/reload/initReloadServer.js",
     "dev": "npm run build:hmr && (run-p wss build:watch)",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "type": "module",
   "dependencies": {
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-toastify": "^9.1.2"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.5.0",
