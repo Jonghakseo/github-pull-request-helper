@@ -54,6 +54,9 @@ export default function App() {
       prevCommitUrls.current = newCommitUrls;
     }
     function getAdditionalCommits(commitList: Commit[]): Commit[] {
+      if (prevCommitUrls.current.length === 0) {
+        return [];
+      }
       return commitList.filter(
         (commit) => !prevCommitUrls.current.includes(commit.url)
       );
