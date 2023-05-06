@@ -6,7 +6,7 @@ refresh("pages/background");
 const storageKey = "pr-commit-noti-toast-config";
 
 chrome.runtime.onConnect.addListener((port) => {
-  port.onDisconnect.addListener(() => console.log("Port disconnected"));
+  port.onDisconnect.addListener(() => console.warn("Port disconnected"));
   port.onMessage.addListener(async (message: Message) => {
     switch (message.type) {
       case "loadConfig":
