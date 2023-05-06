@@ -30,7 +30,7 @@ class ConfigStorage<Data extends Record<string, unknown>> {
 
 export class ToastConfigStorageBuilder {
   private static instance: ConfigStorage<ToastConfig>;
-  private static storageKey = "noti-commit-toast-config";
+  private static storageKey = "pr-commit-noti-toast-config";
 
   static getStore(): ConfigStorage<ToastConfig> {
     if (!ToastConfigStorageBuilder.instance) {

@@ -1,5 +1,5 @@
 {
-  "name": "noti-commit",
+  "name": "pr-commit-noti",
   "version": "0.0.1",
   "description": "pull request notification for github",
   "license": "MIT",
