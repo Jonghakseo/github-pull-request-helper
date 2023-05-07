@@ -20,7 +20,9 @@ export function sendMessageToBackground<M extends Message>({
   port.onMessage.addListener((responseMessage: M) => {
     handleSuccess?.(responseMessage.data as GetDataType<M["type"]>);
   });
-  port.onDisconnect.addListener(() => console.warn("Port disconnected"));
+  port.onDisconnect.addListener(() => {
+    // console.log("Port disconnected");
+  });
   try {
     port.postMessage(message);
   } catch (error) {
