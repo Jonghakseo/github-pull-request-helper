@@ -15,6 +15,9 @@ export default function useUrlChangeEffect(effect: CustomEffectCallback): void {
         return;
       }
       currentUrlRef.current = url;
+      if (typeof cleanUpRef.current === "function") {
+        cleanUpRef.current();
+      }
       cleanUpRef.current = effect(url);
     }, 500);
 
@@ -22,7 +25,7 @@ export default function useUrlChangeEffect(effect: CustomEffectCallback): void {
     return () => {
       clearInterval(interval);
       if (typeof cleanUpRef.current === "function") {
-        cleanUpRef.current?.();
+        cleanUpRef.current();
       }
     };
   }, []);
