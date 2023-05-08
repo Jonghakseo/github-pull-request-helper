@@ -17,7 +17,7 @@ export default function App() {
 
   const notify = async (commit: Commit) => {
     const toastConfigStorage = await ToastConfigStorageBuilder.getStore();
-    toast(commit.name, {
+    toast(`[${commit.hash}] ${commit.name}`, {
       onClick: () => {
         const link = (() => {
           switch (toastConfigStorage.get("copyStyle")) {

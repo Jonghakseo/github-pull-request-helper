@@ -1,6 +1,6 @@
 {
   "name": "pr-commit-noti",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "New commit notify into github pull request page",
   "license": "MIT",
   "repository": {
