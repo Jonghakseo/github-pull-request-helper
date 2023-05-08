@@ -82,7 +82,7 @@ export default function App() {
     }, 500);
 
     return () => {
-      toast.dismiss();
+      // toast.dismiss();
       clearInterval(interval);
     };
   });
