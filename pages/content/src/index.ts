@@ -1,6 +1,15 @@
-import { sampleFunction } from '@src/sampleFunction';
+import parseCommits from '@src/parse-commits';
+import { isGithubPullRequestPage, whenUrlChanges } from '@src/event-handler';
 
-console.log('content script loaded');
+whenUrlChanges(url => {
+  if (!isGithubPullRequestPage(url)) {
+    return;
+  }
+  const interval = setInterval(() => {
+    const commits = parseCommits();
+  }, 2000);
 
-// Shows how to call a function defined in another module
-sampleFunction();
+  return () => {
+    window.clearInterval(interval);
+  };
+});
