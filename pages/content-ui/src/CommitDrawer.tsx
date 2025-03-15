@@ -16,6 +16,11 @@ import { copyCommitToClipboard } from '@src/utils';
 import { useState } from 'react';
 import type { Commit, Comment } from '@src/types';
 
+enum TabKeys {
+  Commits = 'commits',
+  Comments = 'comments',
+}
+
 type CommitDrawerProps = {
   commits: Commit[];
   comments: Comment[];
@@ -23,6 +28,7 @@ type CommitDrawerProps = {
 };
 
 export default function CommitDrawer({ commits, comments, container }: CommitDrawerProps) {
+  const [tabKey, setTabKey] = useState<TabKeys>(TabKeys.Commits);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const hasCommitsOrComments = commits.length > 0 || comments.length > 0;
@@ -56,13 +62,17 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
         <SheetContent container={container} className={'pointer-events-auto bg-gray-800 border-transparent'}>
           <SheetHeader>
             <SheetTitle className="text-amber-50">Timeline</SheetTitle>
-            <Tabs defaultValue="commits">
+            <Tabs value={tabKey}>
               <TabsList className="grid w-full grid-cols-2 mt-2 mb-4">
-                <TabsTrigger value="commits">Commits</TabsTrigger>
-                <TabsTrigger value="comments">Comments</TabsTrigger>
+                <TabsTrigger onClick={() => setTabKey(TabKeys.Commits)} value={TabKeys.Commits}>
+                  Commits
+                </TabsTrigger>
+                <TabsTrigger onClick={() => setTabKey(TabKeys.Comments)} value={TabKeys.Comments}>
+                  Comments
+                </TabsTrigger>
               </TabsList>
               <SheetDescription>
-                <TabsContent value="commits">
+                <TabsContent value={TabKeys.Commits}>
                   <div className="flex flex-col gap-4">
                     {commits.map(commit => {
                       const isCopied = copiedId === commit.id;
@@ -89,9 +99,9 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                     })}
                   </div>
                 </TabsContent>
-                <TabsContent value="comments">
+                <TabsContent value={TabKeys.Comments}>
                   You can see only visible comments here.
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 mt-2">
                     {comments.map(comment => {
                       return (
                         <div className="flex justify-between p-4 border border-gray-400 rounded" key={comment.id}>
