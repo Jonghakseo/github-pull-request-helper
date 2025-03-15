@@ -29,14 +29,9 @@ const manifest = {
   },
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  host_permissions: ['<all_urls>'],
+  host_permissions: ['https://github.com/*'],
   permissions: ['storage'],
-  background: {
-    service_worker: 'background.js',
-    type: 'module',
-  },
   action: {
-    default_popup: 'popup/index.html',
     default_icon: 'icon-34.png',
   },
   chrome_url_overrides: {},
