@@ -1,10 +1,14 @@
+import '@extension/ui/lib/global.css';
 import { createRoot } from 'react-dom/client';
 import App from '@src/App';
 // @ts-expect-error Because file doesn't exist before build
 import tailwindcssOutput from '../dist/tailwind-output.css?inline';
+import { Toaster } from '@extension/ui';
 
 const root = document.createElement('div');
-root.id = 'chrome-extension-boilerplate-react-vite-content-view-root';
+root.id = 'pr-commit-noti-content-view-root';
+
+root.dataset.vaulDrawerWrapper = 'true';
 
 document.body.append(root);
 
@@ -31,4 +35,15 @@ if (navigator.userAgent.includes('Firefox')) {
 }
 
 shadowRoot.appendChild(rootIntoShadow);
-createRoot(rootIntoShadow).render(<App />);
+createRoot(rootIntoShadow).render(
+  <>
+    <App container={rootIntoShadow} />
+    <Toaster
+      swipeDirections={[]}
+      expand
+      visibleToasts={10}
+      style={{ pointerEvents: 'auto' }}
+      toastOptions={{ style: { width: '300px' } }}
+    />
+  </>,
+);

@@ -10,7 +10,7 @@ export const useStorage = <
   Data = Storage extends BaseStorage<infer Data> ? Data : unknown,
 >(
   storage: Storage,
-) => {
+): Exclude<Data, PromiseLike<unknown>> => {
   const initializedRef = useRef(false);
   const _data = useSyncExternalStore<Data | null>(storage.subscribe, storage.getSnapshot);
 
