@@ -1,19 +1,19 @@
 import { useEffect } from 'react';
-import { commitsStorage } from '@extension/storage';
+import { timelineStorage } from '@extension/storage';
 import CommitDrawer from '@src/CommitDrawer';
 import { useStorage } from '@extension/shared';
 import { toast } from '@extension/ui';
-import type { Commit } from '@src/types';
+import type { Commit, Comment } from '@src/types';
 import { copyCommitToClipboard, removeSystemCommits } from '@src/utils';
 
 export default function App({ container }: { container: HTMLElement }) {
-  const storage = useStorage(commitsStorage);
+  const storage = useStorage(timelineStorage);
   const url = new URL(window.location.href);
   const urlWithoutHash = url.origin + url.pathname;
-  const currentCommits = storage[urlWithoutHash];
+  const currentTimeline = storage[urlWithoutHash];
 
   useEffect(() => {
-    void commitsStorage.deleteExpired();
+    void timelineStorage.deleteExpired();
 
     async function commitHandler(event: MessageEvent) {
       const message = event.data;
@@ -29,9 +29,15 @@ export default function App({ container }: { container: HTMLElement }) {
           }
           case 'commits': {
             const payloadCommits = removeSystemCommits(payload.commits as Commit[]);
-            console.log(payloadCommits);
-            const updatedCommits = await commitsStorage.saveCommits(payload.url, payloadCommits);
+            const updatedCommits = await timelineStorage.saveCommits(payload.url, payloadCommits);
             updatedCommits.forEach(showCommitCopyToast);
+            return;
+          }
+          case 'comments': {
+            const payloadComments = payload.comments as Comment[];
+            await timelineStorage.saveComments(payload.url, payloadComments);
+            // do nothing
+            return;
           }
         }
       } catch {
@@ -45,10 +51,12 @@ export default function App({ container }: { container: HTMLElement }) {
     };
   }, []);
 
-  if (!currentCommits) {
+  if (!currentTimeline) {
     return null;
   }
-  return <CommitDrawer commits={currentCommits.commits} container={container} />;
+  return (
+    <CommitDrawer commits={currentTimeline.commits} comments={currentTimeline.comments ?? []} container={container} />
+  );
 }
 
 function showCommitCopyToast(commit: Commit) {

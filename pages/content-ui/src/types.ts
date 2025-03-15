@@ -3,3 +3,10 @@ export type Commit = {
   commitMessage: string;
   commitLink: string;
 };
+
+export type Comment = {
+  id: string;
+  authorName: string;
+  authorProfileSrc: string;
+  body: string;
+};

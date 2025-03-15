@@ -7,18 +7,25 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from '@extension/ui';
 import { copyCommitToClipboard } from '@src/utils';
 import { useState } from 'react';
-import type { Commit } from '@src/types';
+import type { Commit, Comment } from '@src/types';
 
 type CommitDrawerProps = {
   commits: Commit[];
+  comments: Comment[];
   container: HTMLElement;
 };
 
-export default function CommitDrawer({ commits, container }: CommitDrawerProps) {
+export default function CommitDrawer({ commits, comments, container }: CommitDrawerProps) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const hasCommitsOrComments = commits.length > 0 || comments.length > 0;
 
   return (
     <>
@@ -28,7 +35,7 @@ export default function CommitDrawer({ commits, container }: CommitDrawerProps) 
             size="sm"
             variant="secondary"
             className={cn(
-              commits.length > 0 ? 'block' : 'hidden',
+              hasCommitsOrComments ? 'block' : 'hidden',
               'pointer-events-auto absolute right-[-4px] top-1/2 transform -translate-y-1/2 pl-2',
             )}>
             <svg
@@ -48,28 +55,78 @@ export default function CommitDrawer({ commits, container }: CommitDrawerProps) 
         </SheetTrigger>
         <SheetContent container={container} className={'pointer-events-auto bg-gray-800 border-transparent'}>
           <SheetHeader>
-            <SheetTitle className="text-amber-50">Commits</SheetTitle>
-            <SheetDescription>
-              <div className="flex flex-col gap-4">
-                {commits.map(commit => {
-                  const isCopied = copiedId === commit.id;
-                  return (
-                    <div className="flex justify-between p-4 border border-gray-400 rounded" key={commit.id}>
-                      <span className="w-[200px] text-amber-50 line-clamp-2">{commit.commitMessage}</span>
-                      <Button
-                        size="sm"
-                        variant={isCopied ? 'secondary' : 'default'}
-                        onClick={() => {
-                          copyCommitToClipboard(commit);
-                          setCopiedId(commit.id);
-                        }}>
-                        {isCopied ? 'Copied' : 'Copy'}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </SheetDescription>
+            <SheetTitle className="text-amber-50">Timeline</SheetTitle>
+            <Tabs defaultValue="commits">
+              <TabsList className="grid w-full grid-cols-2 mt-2 mb-4">
+                <TabsTrigger value="commits">Commits</TabsTrigger>
+                <TabsTrigger value="comments">Comments</TabsTrigger>
+              </TabsList>
+              <SheetDescription>
+                <TabsContent value="commits">
+                  <div className="flex flex-col gap-4">
+                    {commits.map(commit => {
+                      const isCopied = copiedId === commit.id;
+                      return (
+                        <div className="flex justify-between p-4 border border-gray-400 rounded" key={commit.id}>
+                          <a
+                            className="w-[200px] text-amber-50 line-clamp-2 underline"
+                            href={commit.commitLink}
+                            target="_blank"
+                            rel="noreferrer">
+                            {commit.commitMessage}
+                          </a>
+                          <Button
+                            size="sm"
+                            variant={isCopied ? 'secondary' : 'default'}
+                            onClick={() => {
+                              copyCommitToClipboard(commit);
+                              setCopiedId(commit.id);
+                            }}>
+                            {isCopied ? 'Copied' : 'Copy'}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+                <TabsContent value="comments">
+                  You can see only visible comments here.
+                  <div className="flex flex-col gap-4">
+                    {comments.map(comment => {
+                      return (
+                        <div className="flex justify-between p-4 border border-gray-400 rounded" key={comment.id}>
+                          <div className="flex flex-col justify-start w-[230px] gap-2">
+                            <div className="flex justify-start gap-2">
+                              <img
+                                alt={comment.authorName}
+                                className="w-5 h-5 rounded-full"
+                                src={comment.authorProfileSrc}
+                              />
+                              <strong>{comment.authorName}</strong>
+                            </div>
+                            <span className="text-amber-50 line-clamp-2">{comment.body}</span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant={'default'}
+                            onClick={() => {
+                              const target = document.getElementById(comment.id);
+                              if (target) {
+                                const top = Math.ceil(
+                                  target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 2,
+                                );
+                                window.scrollTo({ top, behavior: 'instant' });
+                              }
+                            }}>
+                            Go
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              </SheetDescription>
+            </Tabs>
           </SheetHeader>
         </SheetContent>
       </Sheet>

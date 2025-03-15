@@ -1,2 +1,2 @@
 export * from './exampleThemeStorage.js';
-export * from './commitsStorage.js';
+export * from './timelineStorage.js';

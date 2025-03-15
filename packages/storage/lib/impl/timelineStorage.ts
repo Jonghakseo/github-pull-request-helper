@@ -7,20 +7,30 @@ type Commit = {
   commitLink: string;
 };
 
-type CommitStore = {
+type Comment = {
+  id: string;
+  authorName: string;
+  authorProfileSrc: string;
+  body: string;
+};
+
+type TimelineStore = {
   [url in string]: {
     lastUpdatedAt: number;
     commits: Commit[];
+    comments: Comment[];
   };
 };
 
-type CommitsStorage = BaseStorage<CommitStore> & {
+type TimelineStorage = BaseStorage<TimelineStore> & {
   deleteExpired: () => Promise<void>;
   /** return new commits */
   saveCommits: (url: string, commits: Commit[]) => Promise<Commit[]>;
+  /** return new comments */
+  saveComments: (url: string, comments: Comment[]) => Promise<Comment[]>;
 };
 
-const storage = createStorage<CommitStore>(
+const storage = createStorage<TimelineStore>(
   'commits',
   {},
   {
@@ -29,7 +39,7 @@ const storage = createStorage<CommitStore>(
   },
 );
 
-export const commitsStorage: CommitsStorage = {
+export const timelineStorage: TimelineStorage = {
   ...storage,
   deleteExpired: async () => {
     const data = await storage.get();
@@ -41,7 +51,7 @@ export const commitsStorage: CommitsStorage = {
         ...acc,
         [url]: value,
       };
-    }, {} as CommitStore);
+    }, {} as TimelineStore);
     await storage.set(newData);
   },
   saveCommits: async (url, commits) => {
@@ -53,6 +63,7 @@ export const commitsStorage: CommitsStorage = {
       return {
         ...prev,
         [url]: {
+          ...prevDataAtThisUrl,
           lastUpdatedAt: Date.now(),
           commits,
         },
@@ -72,6 +83,38 @@ export const commitsStorage: CommitsStorage = {
     }
 
     return updatedCommits;
+  },
+  saveComments: async (url, comments) => {
+    const prev = await storage.get();
+    const prevDataAtThisUrl = prev[url];
+
+    // update
+    await storage.set(prev => {
+      return {
+        ...prev,
+        [url]: {
+          ...prevDataAtThisUrl,
+          lastUpdatedAt: Date.now(),
+          comments,
+        },
+      };
+    });
+
+    if (!prevDataAtThisUrl) {
+      return [];
+    }
+    if (checkIsExpired(prevDataAtThisUrl.lastUpdatedAt)) {
+      return [];
+    }
+    const prevComments = prevDataAtThisUrl.comments || [];
+    const updatedComments = comments.filter(
+      comment => !prevComments.some(prevComment => prevComment.id === comment.id),
+    );
+    if (updatedComments.length === 0) {
+      return [];
+    }
+
+    return updatedComments;
   },
 };
 
