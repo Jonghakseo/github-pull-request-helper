@@ -13,7 +13,7 @@ import {
   TabsTrigger,
 } from '@extension/ui';
 import { copyCommitToClipboard } from '@src/utils';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Commit, Comment } from '@src/types';
 
 enum TabKeys {
@@ -28,16 +28,36 @@ type CommitDrawerProps = {
 };
 
 export default function CommitDrawer({ commits, comments, container }: CommitDrawerProps) {
+  const [open, setOpen] = useState(false);
   const [tabKey, setTabKey] = useState<TabKeys>(TabKeys.Commits);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  const openSheet = () => setOpen(true);
+  const closeSheet = () => setOpen(false);
+  const toggleSheet = () => setOpen(prev => !prev);
+
   const hasCommitsOrComments = commits.length > 0 || comments.length > 0;
+
+  useEffect(() => {
+    function openSheetByKeyEvent(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'c' && !window.getSelection()?.toString()) {
+        toggleSheet();
+      }
+    }
+
+    window.addEventListener('keydown', openSheetByKeyEvent);
+
+    return () => {
+      window.removeEventListener('keydown', openSheetByKeyEvent);
+    };
+  }, []);
 
   return (
     <>
-      <Sheet modal={false}>
+      <Sheet modal={false} open={open}>
         <SheetTrigger asChild>
           <Button
+            onClick={openSheet}
             size="default"
             variant="secondary"
             className={cn(
@@ -59,9 +79,19 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
             </svg>
           </Button>
         </SheetTrigger>
-        <SheetContent container={container} className={'pointer-events-auto bg-gray-800 border-transparent'}>
+        <SheetContent
+          onInteractOutside={e => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={closeSheet}
+          container={container}
+          className={'pointer-events-auto bg-[#0d1117] border-[#3d444db3]'}>
           <SheetHeader>
             <SheetTitle className="text-amber-50">Timeline</SheetTitle>
+            <span>
+              You can toggle drawer by <kbd>cmd(ctrl) + c</kbd>
+            </span>
             <Tabs value={tabKey}>
               <TabsList className="grid w-full grid-cols-2 mt-2 mb-4">
                 <TabsTrigger
@@ -85,7 +115,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                       return (
                         <div className="flex justify-between p-4 border border-gray-400 rounded" key={commit.id}>
                           <a
-                            className="w-[200px] text-amber-50 line-clamp-2 underline"
+                            className="w-[200px] text-[#f0f6fc] line-clamp-2 underline"
                             href={commit.commitLink}
                             target="_blank"
                             rel="noreferrer">
@@ -120,7 +150,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                               />
                               <strong>{comment.authorName}</strong>
                             </div>
-                            <span className="text-amber-50 line-clamp-2">{comment.body}</span>
+                            <span className="text-[#f0f6fc] line-clamp-2">{comment.body}</span>
                           </div>
                           <Button
                             size="sm"
