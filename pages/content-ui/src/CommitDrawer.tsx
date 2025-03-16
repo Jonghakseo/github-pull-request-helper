@@ -13,7 +13,7 @@ import {
   TabsTrigger,
 } from '@extension/ui';
 import { copyCommitToClipboard } from '@src/utils';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Commit, Comment } from '@src/types';
 
 enum TabKeys {
@@ -100,12 +100,13 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                   disabled={!comments.length}
                   onClick={() => setTabKey(TabKeys.Comments)}
                   value={TabKeys.Comments}>
-                  Opened Comments ({comments.length})
+                  Comments ({comments.length})
                 </TabsTrigger>
               </TabsList>
               <SheetDescription>
                 <TabsContent value={TabKeys.Commits}>
-                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+                  <span>You can't see hidden commits here.</span>
+                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-200px)]">
                     {commits.map(commit => {
                       const isCopied = copiedId === commit.id;
                       return (
@@ -132,11 +133,13 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                   </div>
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
-                  <span>You can't see hidden & resolved comments here.</span>
-                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-160px)]">
-                    {comments.map(comment => {
+                  <span>You can't see hidden comments here.</span>
+                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-200px)]">
+                    {comments.map((comment, index) => {
                       return (
-                        <div className="flex justify-between p-4 border border-gray-400 rounded" key={comment.id}>
+                        <div
+                          className="flex justify-between p-4 border border-gray-400 rounded"
+                          key={`${comment.id}${index}`}>
                           <div className="flex flex-col justify-start w-[230px] gap-2">
                             <div className="flex justify-start gap-2">
                               <img

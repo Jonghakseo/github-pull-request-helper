@@ -4,6 +4,7 @@ import App from '@src/App';
 // @ts-expect-error Because file doesn't exist before build
 import tailwindcssOutput from '../dist/tailwind-output.css?inline';
 import { Toaster } from '@extension/ui';
+import { timelineStorage } from '@extension/storage';
 
 const root = document.createElement('div');
 root.id = 'pr-commit-noti-content-view-root';
@@ -33,7 +34,7 @@ if (navigator.userAgent.includes('Firefox')) {
   globalStyleSheet.replaceSync(tailwindcssOutput);
   shadowRoot.adoptedStyleSheets = [globalStyleSheet];
 }
-
+timelineStorage.deleteExpired();
 shadowRoot.appendChild(rootIntoShadow);
 createRoot(rootIntoShadow).render(
   <>

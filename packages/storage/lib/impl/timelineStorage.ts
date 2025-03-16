@@ -17,8 +17,8 @@ type Comment = {
 type TimelineStore = {
   [url in string]: {
     lastUpdatedAt: number;
-    commits: Commit[];
-    comments: Comment[];
+    commits?: Commit[];
+    comments?: Comment[];
   };
 };
 
@@ -70,7 +70,7 @@ export const timelineStorage: TimelineStorage = {
       };
     });
 
-    if (!prevDataAtThisUrl) {
+    if (!prevDataAtThisUrl || !prevDataAtThisUrl.commits?.length) {
       return [];
     }
     if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
@@ -100,7 +100,7 @@ export const timelineStorage: TimelineStorage = {
       };
     });
 
-    if (!prevDataAtThisUrl) {
+    if (!prevDataAtThisUrl || !prevDataAtThisUrl.comments?.length) {
       return [];
     }
     if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
