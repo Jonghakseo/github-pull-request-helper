@@ -73,7 +73,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
               </TabsList>
               <SheetDescription>
                 <TabsContent value={TabKeys.Commits}>
-                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-40px)]">
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-140px)]">
                     {commits.map(commit => {
                       const isCopied = copiedId === commit.id;
                       return (
@@ -100,8 +100,8 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                   </div>
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
-                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-40px)]">
-                    <span>You can see only visible comments here.</span>
+                  <span>You can see only visible comments here.</span>
+                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-160px)]">
                     {comments.map(comment => {
                       return (
                         <div className="flex justify-between p-4 border border-gray-400 rounded" key={comment.id}>
