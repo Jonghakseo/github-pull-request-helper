@@ -14,7 +14,9 @@ export default function App({ container }: { container: HTMLElement }) {
 
   useEffect(() => {
     void timelineStorage.deleteExpired();
+  }, []);
 
+  useEffect(() => {
     async function commitHandler(event: MessageEvent) {
       const message = event.data;
       if (typeof message !== 'string') {
@@ -49,7 +51,7 @@ export default function App({ container }: { container: HTMLElement }) {
     return () => {
       window.removeEventListener('message', commitHandler);
     };
-  }, []);
+  }, [currentTimeline.lastUpdatedAt]);
 
   if (!currentTimeline) {
     return null;
