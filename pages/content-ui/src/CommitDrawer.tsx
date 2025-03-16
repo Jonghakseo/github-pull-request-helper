@@ -1,20 +1,25 @@
 import {
   Button,
   cn,
+  Label,
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  Switch,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@extension/ui';
-import { copyCommitToClipboard } from '@src/utils';
+import { checkIsResolvedComment } from '@src/utils';
 import { memo, useEffect, useMemo, useState } from 'react';
 import type { Commit, Comment } from '@src/types';
+import CommentCard from '@src/CommentCard';
+import CommitCard from '@src/CommitCard';
+import { t } from '@extension/i18n';
 
 enum TabKeys {
   Commits = 'commits',
@@ -28,10 +33,9 @@ type CommitDrawerProps = {
 };
 
 function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
-  console.log('render');
   const [open, setOpen] = useState(false);
+  const [showOnlyUnResolved, setShowOnlyUnResolved] = useState(false);
   const [tabKey, setTabKey] = useState<TabKeys>(TabKeys.Commits);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const openSheet = () => setOpen(true);
   const closeSheet = () => setOpen(false);
@@ -52,6 +56,10 @@ function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
       window.removeEventListener('keydown', openSheetByKeyEvent);
     };
   }, []);
+
+  const shownComments = useMemo(() => {
+    return showOnlyUnResolved ? comments.filter(comment => !checkIsResolvedComment(comment.id)) : comments;
+  }, [showOnlyUnResolved, comments]);
 
   return (
     <>
@@ -86,9 +94,9 @@ function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
           container={container}
           className={'pointer-events-auto bg-[#0d1117] border-[#3d444db3]'}>
           <SheetHeader>
-            <SheetTitle className="text-amber-50">Timeline</SheetTitle>
+            <SheetTitle className="text-amber-50">{t('CommitDrawer_title')}</SheetTitle>
             <span>
-              You can toggle drawer by <kbd>cmd(ctrl) + c</kbd>
+              <kbd>Cmd(Ctrl) + c</kbd> {t('CommitDrawer_toToggleDrawer')}
             </span>
             <Tabs value={tabKey}>
               <TabsList className="grid w-full grid-cols-2 mt-2 mb-4">
@@ -96,48 +104,34 @@ function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
                   disabled={!commits.length}
                   onClick={() => setTabKey(TabKeys.Commits)}
                   value={TabKeys.Commits}>
-                  User Commits ({commits.length})
+                  {t('CommitDrawer_userCommits')} ({commits.length})
                 </TabsTrigger>
                 <TabsTrigger
                   disabled={!comments.length}
                   onClick={() => setTabKey(TabKeys.Comments)}
                   value={TabKeys.Comments}>
-                  Comments ({comments.length})
+                  {t('CommitDrawer_comments')} ({comments.length})
                 </TabsTrigger>
               </TabsList>
               <SheetDescription>
                 <TabsContent value={TabKeys.Commits}>
-                  <span>You can't see hidden commits here.</span>
-                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-200px)]">
+                  <span>{t('CommitDrawer_cantSeeHiddenCommits')}</span>
+                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-220px)]">
                     {commits.map(commit => {
-                      const isCopied = copiedId === commit.id;
-                      return (
-                        <div className="flex justify-between p-4 border border-gray-400 rounded" key={commit.id}>
-                          <a
-                            className="w-[200px] text-[#f0f6fc] line-clamp-2 underline"
-                            href={commit.commitLink}
-                            target="_blank"
-                            rel="noreferrer">
-                            {commit.commitMessage}
-                          </a>
-                          <Button
-                            size="sm"
-                            variant={isCopied ? 'secondary' : 'default'}
-                            onClick={() => {
-                              copyCommitToClipboard(commit);
-                              setCopiedId(commit.id);
-                            }}>
-                            {isCopied ? 'Copied' : 'Copy'}
-                          </Button>
-                        </div>
-                      );
+                      return <CommitCard key={commit.id} commit={commit} />;
                     })}
                   </div>
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
-                  <span>You can't see hidden comments here.</span>
-                  <div className={cn('flex flex-col gap-4 mt-2 overflow-y-auto', 'max-h-[calc(100vh-200px)]')}>
-                    {comments.map((comment, index) => {
+                  <div className="flex flex-col items-start gap-2 mb-4">
+                    <span>{t('CommitDrawer_cantSeeHiddenComment')}</span>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="comment-filter">{t('CommitDrawer_onlyUnresolved')}</Label>
+                      <Switch id="comment-filter" onCheckedChange={setShowOnlyUnResolved} />
+                    </div>
+                  </div>
+                  <div className={cn('flex flex-col gap-4 overflow-y-auto', 'max-h-[calc(100vh-260px)]')}>
+                    {shownComments.map((comment, index) => {
                       return <CommentCard key={`${comment.id}${index}`} comment={comment} />;
                     })}
                   </div>
@@ -154,51 +148,3 @@ function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
 const CommitDrawer = memo(CommitDrawerPure);
 
 export default CommitDrawer;
-
-function CommentCardPure({ comment }: { comment: Comment }) {
-  const isResolved = useMemo(() => checkIsResolvedComment(comment.id), [comment.id]);
-  return (
-    <div className={cn('flex justify-between p-4 border rounded', isResolved ? 'border-green-500' : 'border-gray-400')}>
-      <div className="flex flex-col justify-start w-[230px] gap-2">
-        <div className="flex justify-start gap-2">
-          <img alt={comment.authorName} className="w-5 h-5 rounded-full" src={comment.authorProfileSrc} />
-          <strong>{comment.authorName}</strong>
-        </div>
-        <span className="text-[#f0f6fc] line-clamp-2">{comment.body}</span>
-      </div>
-      <Button
-        size="sm"
-        variant={'default'}
-        onClick={() => {
-          const target = document.getElementById(comment.id);
-          if (target) {
-            clickClosestToggleSummary(target);
-            const top = Math.ceil(target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 3);
-            window.scrollTo({ top, behavior: 'smooth' });
-          }
-        }}>
-        Go
-      </Button>
-    </div>
-  );
-}
-
-const CommentCard = memo(CommentCardPure, (prevProps, nextProps) => {
-  return prevProps.comment.id === nextProps.comment.id;
-});
-
-function checkIsResolvedComment(id: string) {
-  const commentElement = document.getElementById(id);
-  const closestDetails = commentElement?.closest('details');
-  // data-resolved
-  return closestDetails?.dataset['resolved'] === 'true';
-}
-
-function clickClosestToggleSummary(startElement: HTMLElement) {
-  const closestDetails = startElement.closest('details');
-  const summary = closestDetails?.querySelector('summary');
-  if (!summary || summary.ariaExpanded === 'true') {
-    return;
-  }
-  summary?.click();
-}

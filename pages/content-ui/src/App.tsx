@@ -5,6 +5,7 @@ import { useStorage } from '@extension/shared';
 import { toast } from '@extension/ui';
 import type { Comment, Commit } from '@src/types';
 import { copyCommitToClipboard, removeSystemCommits } from '@src/utils';
+import { t } from '@extension/i18n';
 
 export default function App({ container }: { container: HTMLElement }) {
   const storage = useStorage(timelineStorage);
@@ -74,7 +75,7 @@ function showCommitCopyToast(commit: Commit) {
   toast(commit.commitMessage, {
     duration: 1000000,
     action: {
-      label: 'Copy',
+      label: t('toast_copy'),
       onClick: () => copyCommitToClipboard(commit),
     },
     closeButton: true,

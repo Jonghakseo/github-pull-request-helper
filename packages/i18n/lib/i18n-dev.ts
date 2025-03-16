@@ -4,6 +4,9 @@ import type { I18nValueType, LocalesJSONType } from './types.js';
 
 const translate = (key: keyof LocalesJSONType, substitutions?: string | string[]) => {
   const localeValues = localeJSON[key] as I18nValueType;
+  if (!localeValues) {
+    throw new Error(`Key ${key} not found in locale file`);
+  }
   let message = localeValues.message;
   /**
    * This is a placeholder replacement logic. But it's not perfect.

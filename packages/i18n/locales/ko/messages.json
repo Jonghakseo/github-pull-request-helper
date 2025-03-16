@@ -7,11 +7,38 @@
     "description": "Extension name",
     "message": "Pull Request Commit Notify"
   },
-  "toggleTheme": {
-    "message": "테마 변경"
+  "CommitDrawer_title": {
+    "message": "커밋 & 코멘트 내역"
   },
-  "loading": {
-    "message": "로딩 중..."
+  "CommitDrawer_toToggleDrawer": {
+    "message": "를 눌러 드로어를 열거나 닫을 수 있습니다."
+  },
+  "CommitDrawer_cantSeeHiddenCommits": {
+    "message": "숨겨진 커밋은 볼 수 없습니다."
+  },
+  "CommitDrawer_cantSeeHiddenComment": {
+    "message": "숨겨진 코멘트는 볼 수 없습니다."
+  },
+  "CommitDrawer_onlyUnresolved": {
+    "message": "미해결 코멘트만 보기"
+  },
+  "CommitDrawer_userCommits": {
+    "message": "유저 커밋"
+  },
+  "CommitDrawer_comments": {
+    "message": "코멘트"
+  },
+  "CommitCard_copied": {
+    "message": "복사됨!"
+  },
+  "CommitCard_copy": {
+    "message": "복사"
+  },
+  "CommentCard_go": {
+    "message": "바로가기"
+  },
+  "toast_copy": {
+    "message": "복사"
   },
   "greeting": {
     "description": "인사 메시지",

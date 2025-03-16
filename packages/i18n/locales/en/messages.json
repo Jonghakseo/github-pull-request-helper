@@ -7,11 +7,38 @@
     "description": "Extension name",
     "message": "Pull Request Commit Notify"
   },
-  "toggleTheme": {
-    "message": "Toggle theme"
+  "CommitDrawer_title": {
+    "message": "Overall"
   },
-  "loading": {
-    "message": "Loading..."
+  "CommitDrawer_toToggleDrawer": {
+    "message": "to toggle the drawer"
+  },
+  "CommitDrawer_cantSeeHiddenCommits": {
+    "message": "You can't see hidden commits here."
+  },
+  "CommitDrawer_cantSeeHiddenComment": {
+    "message": "You can't see hidden comments here."
+  },
+  "CommitDrawer_onlyUnresolved": {
+    "message": "Only Unresolved"
+  },
+  "CommitDrawer_userCommits": {
+    "message": "User Commits"
+  },
+  "CommitDrawer_comments": {
+    "message": "Comments"
+  },
+  "CommitCard_copied": {
+    "message": "Copied!"
+  },
+  "CommitCard_copy": {
+    "message": "Copy"
+  },
+  "CommentCard_go": {
+    "message": "Go"
+  },
+  "toast_copy": {
+    "message": "copy"
   },
   "greeting": {
     "description": "Greeting message",
