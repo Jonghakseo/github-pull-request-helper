@@ -65,7 +65,7 @@ export const timelineStorage: TimelineStorage = {
         [url]: {
           ...prevDataAtThisUrl,
           lastUpdatedAt: Date.now(),
-          commits: deduplicateMergeById(prevDataAtThisUrl.commits ?? [], commits),
+          commits: deduplicateMergeById(prevDataAtThisUrl?.commits ?? [], commits),
         },
       };
     });
