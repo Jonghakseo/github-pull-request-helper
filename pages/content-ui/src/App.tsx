@@ -4,24 +4,24 @@ import CommitDrawer from '@src/CommitDrawer';
 import { useStorage } from '@extension/shared';
 import { toast } from '@extension/ui';
 import type { Comment, Commit } from '@src/types';
-import { copyCommitToClipboard, removeSystemCommits } from '@src/utils';
+import { copyCommitToClipboard, getCommentPageYOffset, getCommitPageYOffset, removeSystemCommits } from '@src/utils';
 import { t } from '@extension/i18n';
 
 export default function App({ container }: { container: HTMLElement }) {
   const storage = useStorage(timelineStorage);
   const [currentUrl, setCurrentUrl] = useState<string | undefined>();
   const currentTimeline = currentUrl ? storage[currentUrl] : null;
-  const lastCommitPositionRef = useRef<number>(0);
+  const sortedCommitsByPositionRef = useRef<Array<Commit & { pageY: number }>>([]);
+  const sortedCommentsByPositionRef = useRef<Array<Comment & { pageY: number }>>([]);
 
   useEffect(() => {
-    if (!currentTimeline?.commits?.length) {
-      lastCommitPositionRef.current = 0;
-      return;
-    }
-    if (currentTimeline.commits.length > 0) {
-      lastCommitPositionRef.current = Math.max(...currentTimeline.commits.map(getCommitPageYOffset));
-    }
-  }, [currentTimeline?.commits?.length]);
+    sortedCommentsByPositionRef.current = makeSortedArrayByPageY(
+      (currentTimeline?.comments ?? []).map(addPageYIntoComment),
+    );
+    sortedCommitsByPositionRef.current = makeSortedArrayByPageY(
+      (currentTimeline?.commits ?? []).map(addPageYIntoCommit),
+    );
+  }, [currentTimeline?.lastUpdatedAt]);
 
   useEffect(() => {
     async function commitHandler(event: MessageEvent) {
@@ -42,8 +42,9 @@ export default function App({ container }: { container: HTMLElement }) {
             const payloadCommits = removeSystemCommits(payload.commits as Commit[]);
             const updatedCommits = await timelineStorage.saveCommits(payload.url, payloadCommits);
             await timelineStorage.saveComments(payload.url, payloadComments);
+            const lastCommitPageY = sortedCommitsByPositionRef.current.at(-1)?.pageY ?? 0;
             const updatedCommitsOnlyNew = updatedCommits.filter(
-              updatedCommit => lastCommitPositionRef.current < getCommitPageYOffset(updatedCommit),
+              updatedCommit => lastCommitPageY < getCommitPageYOffset(updatedCommit),
             );
             updatedCommitsOnlyNew.forEach(showCommitCopyToast);
             return;
@@ -63,10 +64,11 @@ export default function App({ container }: { container: HTMLElement }) {
   if (!currentTimeline) {
     return null;
   }
+
   return (
     <CommitDrawer
-      commits={currentTimeline.commits ?? []}
-      comments={currentTimeline.comments ?? []}
+      commits={sortedCommitsByPositionRef.current}
+      comments={sortedCommentsByPositionRef.current}
       container={container}
     />
   );
@@ -81,12 +83,25 @@ function showCommitCopyToast(commit: Commit) {
     closeButton: true,
   });
 }
-function getCommitPageYOffset({ commitLink }: { commitLink: string }) {
-  const origin = window.location.origin;
-  const relativeCommitLink = commitLink.replace(origin, '');
-  const commit = document.querySelector(`code > a[href*="${relativeCommitLink}"]`);
-  if (!commit) {
-    return 0;
-  }
-  return commit.getBoundingClientRect().top + window.pageYOffset;
+
+function addPageYIntoComment(comment: Comment) {
+  return {
+    ...comment,
+    pageY: getCommentPageYOffset(comment),
+  };
+}
+
+function addPageYIntoCommit(commit: Commit) {
+  return {
+    ...commit,
+    pageY: getCommitPageYOffset(commit),
+  };
+}
+
+function makeSortedArrayByPageY<T extends { pageY: number }>(array: T[]) {
+  return [...array].sort(byPageY);
+}
+
+function byPageY(a: { pageY: number }, b: { pageY: number }) {
+  return a.pageY - b.pageY;
 }
