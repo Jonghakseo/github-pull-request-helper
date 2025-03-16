@@ -44,7 +44,7 @@ export const timelineStorage: TimelineStorage = {
   deleteExpired: async () => {
     const data = await storage.get();
     const newData = Object.entries(data).reduce((acc, [url, value]) => {
-      if (checkIsExpired(value.lastUpdatedAt)) {
+      if (isOverOneWeek(value.lastUpdatedAt)) {
         return acc;
       }
       return {
@@ -73,7 +73,7 @@ export const timelineStorage: TimelineStorage = {
     if (!prevDataAtThisUrl) {
       return [];
     }
-    if (checkIsExpired(prevDataAtThisUrl.lastUpdatedAt)) {
+    if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
       return [];
     }
     const prevCommits = prevDataAtThisUrl.commits || [];
@@ -103,7 +103,7 @@ export const timelineStorage: TimelineStorage = {
     if (!prevDataAtThisUrl) {
       return [];
     }
-    if (checkIsExpired(prevDataAtThisUrl.lastUpdatedAt)) {
+    if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
       return [];
     }
     const prevComments = prevDataAtThisUrl.comments || [];
@@ -118,7 +118,14 @@ export const timelineStorage: TimelineStorage = {
   },
 };
 
-function checkIsExpired(lastUpdatedAt: number) {
-  // 7 days
-  return Date.now() - lastUpdatedAt > 1000 * 60 * 60 * 24 * 7;
+function isOverOneWeek(lastUpdatedAt: number) {
+  return checkIsExpired(lastUpdatedAt, 60 * 24 * 7);
+}
+
+function isOverOneMinutes(lastUpdatedAt: number) {
+  return checkIsExpired(lastUpdatedAt, 0.5);
+}
+
+function checkIsExpired(lastUpdatedAt: number, minutes: number) {
+  return Date.now() - lastUpdatedAt > 1000 * 60 * minutes;
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { timelineStorage } from '@extension/storage';
 import CommitDrawer from '@src/CommitDrawer';
 import { useStorage } from '@extension/shared';
@@ -8,9 +8,8 @@ import { copyCommitToClipboard, removeSystemCommits } from '@src/utils';
 
 export default function App({ container }: { container: HTMLElement }) {
   const storage = useStorage(timelineStorage);
-  const url = new URL(window.location.href);
-  const urlWithoutHash = url.origin + url.pathname;
-  const currentTimeline = storage[urlWithoutHash];
+  const [currentUrl, setCurrentUrl] = useState<string | undefined>();
+  const currentTimeline = currentUrl ? storage[currentUrl] : null;
 
   useEffect(() => {
     void timelineStorage.deleteExpired();
@@ -24,8 +23,9 @@ export default function App({ container }: { container: HTMLElement }) {
       }
       try {
         const { type, payload } = JSON.parse(message);
+        setCurrentUrl(payload.url);
         switch (type) {
-          case 'remove-all-commit-toasts': {
+          case 'not-in-pull-request': {
             toast.dismiss();
             return;
           }
@@ -60,7 +60,6 @@ export default function App({ container }: { container: HTMLElement }) {
     <CommitDrawer commits={currentTimeline.commits} comments={currentTimeline.comments ?? []} container={container} />
   );
 }
-
 function showCommitCopyToast(commit: Commit) {
   toast(commit.commitMessage, {
     duration: 1000000,

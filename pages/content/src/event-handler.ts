@@ -1,15 +1,15 @@
-import { detectUrl } from '@src/detect-url';
+import { detectPureUrl } from '@src/detect-pure-url';
 
 type CleanupCallback = (() => void) | undefined;
 
 export function whenUrlChanges(callback: (url: string) => CleanupCallback) {
-  let currentUrl = detectUrl();
+  let currentUrl = detectPureUrl();
   // trigger once on start
   let cleanup = callback(currentUrl);
 
   // check every second
   setInterval(() => {
-    const newUrl = detectUrl();
+    const newUrl = detectPureUrl();
     if (newUrl !== currentUrl) {
       cleanup?.();
       currentUrl = newUrl;

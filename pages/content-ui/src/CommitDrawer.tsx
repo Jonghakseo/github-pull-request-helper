@@ -38,7 +38,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
       <Sheet modal={false}>
         <SheetTrigger asChild>
           <Button
-            size="sm"
+            size="default"
             variant="secondary"
             className={cn(
               hasCommitsOrComments ? 'block' : 'hidden',
@@ -64,11 +64,17 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
             <SheetTitle className="text-amber-50">Timeline</SheetTitle>
             <Tabs value={tabKey}>
               <TabsList className="grid w-full grid-cols-2 mt-2 mb-4">
-                <TabsTrigger onClick={() => setTabKey(TabKeys.Commits)} value={TabKeys.Commits}>
-                  Commits
+                <TabsTrigger
+                  disabled={!commits.length}
+                  onClick={() => setTabKey(TabKeys.Commits)}
+                  value={TabKeys.Commits}>
+                  User Commits ({commits.length})
                 </TabsTrigger>
-                <TabsTrigger onClick={() => setTabKey(TabKeys.Comments)} value={TabKeys.Comments}>
-                  Comments
+                <TabsTrigger
+                  disabled={!comments.length}
+                  onClick={() => setTabKey(TabKeys.Comments)}
+                  value={TabKeys.Comments}>
+                  Opened Comments ({comments.length})
                 </TabsTrigger>
               </TabsList>
               <SheetDescription>
@@ -100,7 +106,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                   </div>
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
-                  <span>You can see only visible comments here.</span>
+                  <span>You can't see hidden & resolved comments here.</span>
                   <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-160px)]">
                     {comments.map(comment => {
                       return (
@@ -125,7 +131,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                                 const top = Math.ceil(
                                   target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 3,
                                 );
-                                window.scrollTo({ top, behavior: 'instant' });
+                                window.scrollTo({ top, behavior: 'smooth' });
                               }
                             }}>
                             Go

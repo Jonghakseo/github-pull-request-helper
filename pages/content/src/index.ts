@@ -3,7 +3,7 @@ import { isGithubPullRequestPage, whenUrlChanges } from '@src/event-handler';
 import parseComments from '@src/parse-comments';
 
 whenUrlChanges(url => {
-  sendMessage({ type: 'remove-all-commit-toasts' });
+  sendMessage({ type: 'not-in-pull-request', payload: { url } });
   if (!isGithubPullRequestPage(url)) {
     return;
   }
@@ -48,7 +48,10 @@ type Message =
       };
     }
   | {
-      type: 'remove-all-commit-toasts';
+      type: 'not-in-pull-request';
+      payload: {
+        url: string;
+      };
     };
 
 function sendMessage(message: Message) {
