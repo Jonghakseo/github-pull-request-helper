@@ -73,7 +73,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
               </TabsList>
               <SheetDescription>
                 <TabsContent value={TabKeys.Commits}>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-40px)]">
                     {commits.map(commit => {
                       const isCopied = copiedId === commit.id;
                       return (
@@ -100,8 +100,8 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                   </div>
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
-                  You can see only visible comments here.
-                  <div className="flex flex-col gap-4 mt-2">
+                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-40px)]">
+                    <span>You can see only visible comments here.</span>
                     {comments.map(comment => {
                       return (
                         <div className="flex justify-between p-4 border border-gray-400 rounded" key={comment.id}>
@@ -123,7 +123,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                               const target = document.getElementById(comment.id);
                               if (target) {
                                 const top = Math.ceil(
-                                  target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 2,
+                                  target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 3,
                                 );
                                 window.scrollTo({ top, behavior: 'instant' });
                               }

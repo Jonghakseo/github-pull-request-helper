@@ -51,7 +51,7 @@ export default function App({ container }: { container: HTMLElement }) {
     return () => {
       window.removeEventListener('message', commitHandler);
     };
-  }, [currentTimeline.lastUpdatedAt]);
+  }, [currentTimeline?.lastUpdatedAt]);
 
   if (!currentTimeline) {
     return null;
