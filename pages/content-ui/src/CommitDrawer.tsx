@@ -80,10 +80,6 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
           </Button>
         </SheetTrigger>
         <SheetContent
-          onInteractOutside={e => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}
           onEscapeKeyDown={closeSheet}
           container={container}
           className={'pointer-events-auto bg-[#0d1117] border-[#3d444db3]'}>
