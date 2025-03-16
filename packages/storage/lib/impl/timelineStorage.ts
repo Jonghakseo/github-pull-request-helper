@@ -65,7 +65,7 @@ export const timelineStorage: TimelineStorage = {
         [url]: {
           ...prevDataAtThisUrl,
           lastUpdatedAt: Date.now(),
-          commits,
+          commits: deduplicateMergeById(prevDataAtThisUrl.commits ?? [], commits),
         },
       };
     });
@@ -95,7 +95,7 @@ export const timelineStorage: TimelineStorage = {
         [url]: {
           ...prevDataAtThisUrl,
           lastUpdatedAt: Date.now(),
-          comments,
+          comments: deduplicateMergeById(prevDataAtThisUrl?.comments || [], comments),
         },
       };
     });
@@ -128,4 +128,13 @@ function isOverOneMinutes(lastUpdatedAt: number) {
 
 function checkIsExpired(lastUpdatedAt: number, minutes: number) {
   return Date.now() - lastUpdatedAt > 1000 * 60 * minutes;
+}
+
+function deduplicateMergeById<T extends { id: string }>(prev: T[], next: T[]) {
+  return next.reduce((acc, nextItem) => {
+    if (prev.some(prevItem => prevItem.id === nextItem.id)) {
+      return acc;
+    }
+    return [...acc, nextItem];
+  }, prev);
 }

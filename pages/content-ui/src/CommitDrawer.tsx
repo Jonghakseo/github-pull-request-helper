@@ -13,7 +13,7 @@ import {
   TabsTrigger,
 } from '@extension/ui';
 import { copyCommitToClipboard } from '@src/utils';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import type { Commit, Comment } from '@src/types';
 
 enum TabKeys {
@@ -27,7 +27,8 @@ type CommitDrawerProps = {
   container: HTMLElement;
 };
 
-export default function CommitDrawer({ commits, comments, container }: CommitDrawerProps) {
+function CommitDrawerPure({ commits, comments, container }: CommitDrawerProps) {
+  console.log('render');
   const [open, setOpen] = useState(false);
   const [tabKey, setTabKey] = useState<TabKeys>(TabKeys.Commits);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -81,6 +82,7 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
         </SheetTrigger>
         <SheetContent
           onEscapeKeyDown={closeSheet}
+          onClickClose={closeSheet}
           container={container}
           className={'pointer-events-auto bg-[#0d1117] border-[#3d444db3]'}>
           <SheetHeader>
@@ -134,39 +136,9 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
                 </TabsContent>
                 <TabsContent value={TabKeys.Comments}>
                   <span>You can't see hidden comments here.</span>
-                  <div className="flex flex-col gap-4 mt-2 overflow-y-auto max-h-[calc(100vh-200px)]">
+                  <div className={cn('flex flex-col gap-4 mt-2 overflow-y-auto', 'max-h-[calc(100vh-200px)]')}>
                     {comments.map((comment, index) => {
-                      return (
-                        <div
-                          className="flex justify-between p-4 border border-gray-400 rounded"
-                          key={`${comment.id}${index}`}>
-                          <div className="flex flex-col justify-start w-[230px] gap-2">
-                            <div className="flex justify-start gap-2">
-                              <img
-                                alt={comment.authorName}
-                                className="w-5 h-5 rounded-full"
-                                src={comment.authorProfileSrc}
-                              />
-                              <strong>{comment.authorName}</strong>
-                            </div>
-                            <span className="text-[#f0f6fc] line-clamp-2">{comment.body}</span>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant={'default'}
-                            onClick={() => {
-                              const target = document.getElementById(comment.id);
-                              if (target) {
-                                const top = Math.ceil(
-                                  target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 3,
-                                );
-                                window.scrollTo({ top, behavior: 'smooth' });
-                              }
-                            }}>
-                            Go
-                          </Button>
-                        </div>
-                      );
+                      return <CommentCard key={`${comment.id}${index}`} comment={comment} />;
                     })}
                   </div>
                 </TabsContent>
@@ -177,4 +149,56 @@ export default function CommitDrawer({ commits, comments, container }: CommitDra
       </Sheet>
     </>
   );
+}
+
+const CommitDrawer = memo(CommitDrawerPure);
+
+export default CommitDrawer;
+
+function CommentCardPure({ comment }: { comment: Comment }) {
+  const isResolved = useMemo(() => checkIsResolvedComment(comment.id), [comment.id]);
+  return (
+    <div className={cn('flex justify-between p-4 border rounded', isResolved ? 'border-green-500' : 'border-gray-400')}>
+      <div className="flex flex-col justify-start w-[230px] gap-2">
+        <div className="flex justify-start gap-2">
+          <img alt={comment.authorName} className="w-5 h-5 rounded-full" src={comment.authorProfileSrc} />
+          <strong>{comment.authorName}</strong>
+        </div>
+        <span className="text-[#f0f6fc] line-clamp-2">{comment.body}</span>
+      </div>
+      <Button
+        size="sm"
+        variant={'default'}
+        onClick={() => {
+          const target = document.getElementById(comment.id);
+          if (target) {
+            clickClosestToggleSummary(target);
+            const top = Math.ceil(target.getBoundingClientRect().y + window.pageYOffset - window.innerHeight / 3);
+            window.scrollTo({ top, behavior: 'smooth' });
+          }
+        }}>
+        Go
+      </Button>
+    </div>
+  );
+}
+
+const CommentCard = memo(CommentCardPure, (prevProps, nextProps) => {
+  return prevProps.comment.id === nextProps.comment.id;
+});
+
+function checkIsResolvedComment(id: string) {
+  const commentElement = document.getElementById(id);
+  const closestDetails = commentElement?.closest('details');
+  // data-resolved
+  return closestDetails?.dataset['resolved'] === 'true';
+}
+
+function clickClosestToggleSummary(startElement: HTMLElement) {
+  const closestDetails = startElement.closest('details');
+  const summary = closestDetails?.querySelector('summary');
+  if (!summary || summary.ariaExpanded === 'true') {
+    return;
+  }
+  summary?.click();
 }

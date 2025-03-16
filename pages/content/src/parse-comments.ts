@@ -19,8 +19,8 @@ export default function parseComments() {
       img.src.startsWith('https://avatars'),
     )?.src;
     const authorName = comment?.querySelector('strong')?.textContent?.trim();
-    const body = comment?.querySelector('.comment-body')?.textContent?.trim().slice(0, 100);
-    if (!authorName || !authorProfileSrc || !body) {
+    const body = comment?.querySelector('.comment-body')?.textContent?.trim().slice(0, 100) ?? '-';
+    if (!authorName || !authorProfileSrc) {
       throw Error('[Pull Request Commit Notify] Comment is not valid');
     }
 
