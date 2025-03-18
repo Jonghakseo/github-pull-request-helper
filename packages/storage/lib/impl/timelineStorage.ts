@@ -58,18 +58,6 @@ export const timelineStorage: TimelineStorage = {
     const prev = await storage.get();
     const prevDataAtThisUrl = prev[url];
 
-    // update
-    await storage.set(prev => {
-      return {
-        ...prev,
-        [url]: {
-          ...prevDataAtThisUrl,
-          lastUpdatedAt: Date.now(),
-          commits: deduplicateMergeById(prevDataAtThisUrl?.commits ?? [], commits),
-        },
-      };
-    });
-
     if (!prevDataAtThisUrl || !prevDataAtThisUrl.commits?.length) {
       return [];
     }
@@ -82,12 +70,6 @@ export const timelineStorage: TimelineStorage = {
       return [];
     }
 
-    return updatedCommits;
-  },
-  saveComments: async (url, comments) => {
-    const prev = await storage.get();
-    const prevDataAtThisUrl = prev[url];
-
     // update
     await storage.set(prev => {
       return {
@@ -95,10 +77,16 @@ export const timelineStorage: TimelineStorage = {
         [url]: {
           ...prevDataAtThisUrl,
           lastUpdatedAt: Date.now(),
-          comments: deduplicateMergeById(prevDataAtThisUrl?.comments || [], comments),
+          commits: deduplicateMergeById(prevDataAtThisUrl?.commits ?? [], commits),
         },
       };
     });
+
+    return updatedCommits;
+  },
+  saveComments: async (url, comments) => {
+    const prev = await storage.get();
+    const prevDataAtThisUrl = prev[url];
 
     if (!prevDataAtThisUrl || !prevDataAtThisUrl.comments?.length) {
       return [];
@@ -113,6 +101,18 @@ export const timelineStorage: TimelineStorage = {
     if (updatedComments.length === 0) {
       return [];
     }
+
+    // update
+    await storage.set(prev => {
+      return {
+        ...prev,
+        [url]: {
+          ...prevDataAtThisUrl,
+          lastUpdatedAt: Date.now(),
+          comments: deduplicateMergeById(prevDataAtThisUrl?.comments || [], comments),
+        },
+      };
+    });
 
     return updatedComments;
   },
