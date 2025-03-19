@@ -58,18 +58,6 @@ export const timelineStorage: TimelineStorage = {
     const prev = await storage.get();
     const prevDataAtThisUrl = prev[url];
 
-    if (!prevDataAtThisUrl || !prevDataAtThisUrl.commits?.length) {
-      return [];
-    }
-    if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
-      return [];
-    }
-    const prevCommits = prevDataAtThisUrl.commits || [];
-    const updatedCommits = commits.filter(commit => !prevCommits.some(prevCommit => prevCommit.id === commit.id));
-    if (updatedCommits.length === 0) {
-      return [];
-    }
-
     // update
     await storage.set(prev => {
       return {
@@ -82,11 +70,35 @@ export const timelineStorage: TimelineStorage = {
       };
     });
 
+    if (!prevDataAtThisUrl || !prevDataAtThisUrl.commits?.length) {
+      return [];
+    }
+    if (isOverOneMinutes(prevDataAtThisUrl.lastUpdatedAt)) {
+      return [];
+    }
+    const prevCommits = prevDataAtThisUrl.commits || [];
+    const updatedCommits = commits.filter(commit => !prevCommits.some(prevCommit => prevCommit.id === commit.id));
+    if (updatedCommits.length === 0) {
+      return [];
+    }
+
     return updatedCommits;
   },
   saveComments: async (url, comments) => {
     const prev = await storage.get();
     const prevDataAtThisUrl = prev[url];
+
+    // update
+    await storage.set(prev => {
+      return {
+        ...prev,
+        [url]: {
+          ...prevDataAtThisUrl,
+          lastUpdatedAt: Date.now(),
+          comments: deduplicateMergeById(prevDataAtThisUrl?.comments || [], comments),
+        },
+      };
+    });
 
     if (!prevDataAtThisUrl || !prevDataAtThisUrl.comments?.length) {
       return [];
@@ -102,18 +114,6 @@ export const timelineStorage: TimelineStorage = {
       return [];
     }
 
-    // update
-    await storage.set(prev => {
-      return {
-        ...prev,
-        [url]: {
-          ...prevDataAtThisUrl,
-          lastUpdatedAt: Date.now(),
-          comments: deduplicateMergeById(prevDataAtThisUrl?.comments || [], comments),
-        },
-      };
-    });
-
     return updatedComments;
   },
 };
@@ -123,7 +123,7 @@ function isOverOneWeek(lastUpdatedAt: number) {
 }
 
 function isOverOneMinutes(lastUpdatedAt: number) {
-  return checkIsExpired(lastUpdatedAt, 0.5);
+  return checkIsExpired(lastUpdatedAt, 1);
 }
 
 function checkIsExpired(lastUpdatedAt: number, minutes: number) {
