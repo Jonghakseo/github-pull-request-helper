@@ -20,20 +20,28 @@ whenUrlChanges(url => {
     }
     sendMessage({ type: 'timeline', payload: { url, commits: parseCommits(), comments: parseComments() } });
     isLoaded = true;
+    find();
   }, 500);
 
-  const findInterval = setInterval(() => {
-    if (isLoaded) {
-      loadCollapsedComments();
-      sendMessage({ type: 'timeline', payload: { url, commits: parseCommits(), comments: parseComments() } });
-    }
-  }, 3000);
+  let findInterval: ReturnType<typeof window.setTimeout>;
+
+  function find() {
+    requestIdleCallback(() => {
+      findInterval = setTimeout(() => {
+        if (!isLoaded) {
+          return;
+        }
+        loadCollapsedComments();
+        sendMessage({ type: 'timeline', payload: { url, commits: parseCommits(), comments: parseComments() } });
+      }, 5000);
+    });
+  }
 
   return () => {
     if (!isLoaded) {
       window.clearTimeout(initTimeout);
     }
-    window.clearInterval(findInterval);
+    window.clearTimeout(findInterval);
   };
 });
 
