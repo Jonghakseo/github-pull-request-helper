@@ -43,8 +43,9 @@ export default function App({ container }: { container: HTMLElement }) {
             const updatedCommits = await timelineStorage.saveCommits(payload.url, payloadCommits);
             await timelineStorage.saveComments(payload.url, payloadComments);
             const lastCommitPageY = sortedCommitsByPositionRef.current.at(-1)?.pageY ?? 0;
-            const updatedCommitsOnlyNew = updatedCommits.filter(
-              updatedCommit => lastCommitPageY < getCommitPageYOffset(updatedCommit),
+            const updatedCommitsWithPageY = updatedCommits.map(addPageYIntoCommit);
+            const updatedCommitsOnlyNew = updatedCommitsWithPageY.filter(
+              updatedCommit => lastCommitPageY <= updatedCommit.pageY,
             );
             updatedCommitsOnlyNew.forEach(showCommitCopyToast);
             return;
