@@ -42,12 +42,12 @@ export default function App({ container }: { container: HTMLElement }) {
             const payloadCommits = removeSystemCommits(payload.commits as Commit[]);
             const updatedCommits = await timelineStorage.saveCommits(payload.url, payloadCommits);
             await timelineStorage.saveComments(payload.url, payloadComments);
-            const lastCommitPageY = sortedCommitsByPositionRef.current.at(-1)?.pageY ?? 0;
-            const updatedCommitsWithPageY = updatedCommits.map(addPageYIntoCommit);
-            const updatedCommitsOnlyNew = updatedCommitsWithPageY.filter(
-              updatedCommit => lastCommitPageY <= updatedCommit.pageY,
-            );
-            updatedCommitsOnlyNew.forEach(showCommitCopyToast);
+            // const lastCommitPageY = sortedCommitsByPositionRef.current.at(-1)?.pageY ?? 0;
+            // const updatedCommitsWithPageY = updatedCommits.map(addPageYIntoCommit);
+            // const updatedCommitsOnlyNew = updatedCommitsWithPageY.filter(
+            //   updatedCommit => lastCommitPageY <= updatedCommit.pageY,
+            // );
+            updatedCommits.forEach(showCommitCopyToast);
             return;
           }
         }

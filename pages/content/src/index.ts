@@ -26,15 +26,14 @@ whenUrlChanges(url => {
   let findInterval: ReturnType<typeof window.setTimeout>;
 
   function find() {
-    requestIdleCallback(() => {
-      findInterval = setTimeout(() => {
-        if (!isLoaded) {
-          return;
-        }
-        loadCollapsedComments();
-        sendMessage({ type: 'timeline', payload: { url, commits: parseCommits(), comments: parseComments() } });
-      }, 5000);
-    });
+    findInterval = setTimeout(() => {
+      if (!isLoaded) {
+        return;
+      }
+      loadCollapsedComments();
+      sendMessage({ type: 'timeline', payload: { url, commits: parseCommits(), comments: parseComments() } });
+      find();
+    }, 5000);
   }
 
   return () => {
