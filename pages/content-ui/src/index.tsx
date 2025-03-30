@@ -42,9 +42,10 @@ createRoot(rootIntoShadow).render(
     <Toaster
       swipeDirections={[]}
       expand
-      visibleToasts={10}
+      visibleToasts={7}
       style={{ pointerEvents: 'auto' }}
       toastOptions={{ style: { width: '300px' } }}
+      offset={{ bottom: 82 }}
     />
   </>,
 );

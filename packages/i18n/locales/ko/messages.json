@@ -40,6 +40,9 @@
   "toast_copy": {
     "message": "복사"
   },
+  "remove_all_toasts": {
+    "message": "모든 알림 삭제"
+  },
   "greeting": {
     "description": "인사 메시지",
     "message": "안녕하세요, 제 이름은 $NAME$입니다.",

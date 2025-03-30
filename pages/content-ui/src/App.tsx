@@ -6,6 +6,7 @@ import { toast } from '@extension/ui';
 import type { Comment, Commit } from '@src/types';
 import { copyCommitToClipboard, getCommentPageYOffset, getCommitPageYOffset, removeSystemCommits } from '@src/utils';
 import { t } from '@extension/i18n';
+import RemoveToastsButton from './RemoveToastsButton';
 
 export default function App({ container }: { container: HTMLElement }) {
   const storage = useStorage(timelineStorage);
@@ -47,6 +48,9 @@ export default function App({ container }: { container: HTMLElement }) {
             // const updatedCommitsOnlyNew = updatedCommitsWithPageY.filter(
             //   updatedCommit => lastCommitPageY <= updatedCommit.pageY,
             // );
+            if (updatedCommits.length > 7) {
+              return;
+            }
             updatedCommits.forEach(showCommitCopyToast);
             return;
           }
@@ -67,16 +71,20 @@ export default function App({ container }: { container: HTMLElement }) {
   }
 
   return (
-    <CommitDrawer
-      commits={sortedCommitsByPositionRef.current}
-      comments={sortedCommentsByPositionRef.current}
-      container={container}
-    />
+    <>
+      <CommitDrawer
+        commits={sortedCommitsByPositionRef.current}
+        comments={sortedCommentsByPositionRef.current}
+        container={container}
+      />
+      <RemoveToastsButton />
+    </>
   );
 }
 function showCommitCopyToast(commit: Commit) {
   toast(commit.commitMessage, {
     duration: 1000000,
+    id: String(Date.now() + Math.random()),
     action: {
       label: t('toast_copy'),
       onClick: () => copyCommitToClipboard(commit),

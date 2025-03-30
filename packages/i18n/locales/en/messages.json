@@ -40,6 +40,9 @@
   "toast_copy": {
     "message": "copy"
   },
+  "remove_all_toasts": {
+    "message": "Remove All Toasts"
+  },
   "greeting": {
     "description": "Greeting message",
     "message": "Hello, My name is $NAME$",
